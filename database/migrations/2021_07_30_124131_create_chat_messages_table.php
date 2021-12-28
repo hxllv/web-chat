@@ -19,7 +19,9 @@ class CreateChatMessagesTable extends Migration
             $table->foreign('sender_id')->references('id')->on('users');
             $table->uuid('receiver_id');
             $table->foreign('receiver_id')->references('id')->on('users');
-            $table->text('message');
+            $table->text('message')->nullable();
+            $table->string('media')->nullable();
+            $table->string('audio')->nullable();
             $table->timestamps();
         });
     }
