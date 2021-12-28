@@ -41,7 +41,6 @@ class FriendController extends Controller
         auth()->user()->friendsOf()->wherePivot('user_id', '=', $user)->update(['accepted' => 1]);   
 
         return redirect('/' . $page . '/' . ($page == 'chat-profile' ? $user : ''));
-
     }
 
     public function search($query)
