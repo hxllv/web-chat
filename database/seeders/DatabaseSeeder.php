@@ -21,12 +21,12 @@ class DatabaseSeeder extends Seeder
         $user[2]->friendsOfMine()->toggle(['friend_id' => $user[3]->id]);
         $user[2]->friendsOfMine()->wherePivot('friend_id', '=',  $user[3]->id)->update(['accepted' => 1]);
 
-        $user[0]->messagesSent()->create(['receiver_id' => $user[1]->id, 'message' => 'test123']);
+        $user[0]->messagesSent()->create(['receiver_id' => $user[1]->id, 'message' => 'test123', 'message_type' => 0]);
         sleep(1);
-        $user[1]->messagesSent()->create(['receiver_id' => $user[0]->id, 'message' => 'response123']);
+        $user[1]->messagesSent()->create(['receiver_id' => $user[0]->id, 'message' => 'response123', 'message_type' => 0]);
 
-        $user[2]->messagesSent()->create(['receiver_id' => $user[3]->id, 'message' => 'test123 #2 other users']);
+        $user[2]->messagesSent()->create(['receiver_id' => $user[3]->id, 'message' => 'test123 #2 other users', 'message_type' => 0]);
         sleep(1);
-        $user[3]->messagesSent()->create(['receiver_id' => $user[2]->id, 'message' => 'response123 #2 other users']);
+        $user[3]->messagesSent()->create(['receiver_id' => $user[2]->id, 'message' => 'response123 #2 other users', 'message_type' => 0]);
     }
 }

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="container border" style="height: 75vh">
+        <div class="container border" style="height: 70vh">
             <div
                 class="w-100"
                 v-for="message in messagesData"
@@ -11,24 +11,77 @@
                 }"
             >
                 <span
-                    class="p-2 border text-white"
+                    class="p-2 border text-white text-break"
+                    style="max-width: 50%"
                     :class="{
                         'bg-primary': idSender == message.sender_id,
                         'bg-secondary': idSender != message.sender_id
                     }"
-                    >{{ message.message }}
+                >
+                    <div v-if="message.message_type === 0">
+                        {{ message.message }}
+                    </div>
+                    <div v-if="message.message_type === 1">
+                        {{ message.message }}
+                    </div>
+                    <div v-if="message.message_type === 2">
+                        <img
+                            :src="`/storage/${message.media}`"
+                            alt=""
+                            class="img-fluid rounded"
+                        />
+                    </div>
                 </span>
             </div>
         </div>
-        <form class="form-inline mt-2" @submit="sendMessage" method="post">
+        <div class="d-flex justify-content-end mt-2 mb-2">
+            <button
+                class="btn btn-secondary ml-2 mr-2"
+                @click="messageType = 0"
+            >
+                Text Message
+            </button>
+            <button
+                class="btn btn-secondary ml-2 mr-2"
+                @click="messageType = 1"
+            >
+                Voice Message
+            </button>
+            <button
+                class="btn btn-secondary ml-2 mr-2"
+                @click="messageType = 2"
+            >
+                Image/Video
+            </button>
+        </div>
+        <form
+            class="form-inline"
+            @submit="sendMessage"
+            method="post"
+            enctype="multipart/form-data"
+        >
             <div class="input-group w-100">
                 <input
+                    v-if="messageType === 0"
                     v-model="message"
                     class="form-control"
                     type="text"
                     name=""
                     id=""
                 />
+                <div
+                    v-if="messageType === 2"
+                    class="form-control d-flex align-items-center"
+                >
+                    <input
+                        class="form-control-file"
+                        accept="image/png, image/jpeg, image/webp"
+                        type="file"
+                        name=""
+                        id=""
+                        @change="onFileChange"
+                    />
+                </div>
                 <div class="input-group-append">
                     <input
                         class="form-control btn btn-light border"
@@ -62,7 +115,10 @@ export default {
     data() {
         return {
             messagesData: {},
-            message: ""
+            message: "",
+            media: null,
+            audio: null,
+            messageType: 0
         };
     },
     methods: {
@@ -116,10 +172,19 @@ export default {
         },
         sendMessage(e) {
             e.preventDefault();
+
+            const config = {
+                headers: { "content-type": "multipart/form-data" }
+            };
+
+            let formData = new FormData();
+            if (this.message != "") formData.append("message", this.message);
+            else if (this.media != null) formData.append("media", this.media);
+            else if (this.audio != null) formData.append("audio", this.audio);
+            formData.append("messageType", this.messageType);
+
             axios
-                .post(`/chat/${this.idReceiver}`, {
-                    message: this.message
-                })
+                .post(`/chat/${this.idReceiver}`, formData, config)
                 .then(response => {
                     this.checkForUpdate().then(response => {
                         this.scrollToEnd();
@@ -128,10 +193,12 @@ export default {
                         }
                     });
                     this.message = "";
+                    this.media = "";
                 })
                 .catch(error => {
                     console.log(error);
                     this.message = "";
+                    this.media = "";
                 });
         },
         properBubbles() {
@@ -154,9 +221,21 @@ export default {
                     ? msg.classList.add("message-left-last")
                     : msg.classList.remove("message-left-last");
             });
+        },
+        onFileChange(e) {
+            const files = e.target.files || e.dataTransfer.files;
+            if (!files.length) return;
+            this.media = files[0];
+            //this.createImage(files[0]);
         }
     },
     props: ["messages", "idSender", "idReceiver"],
+    watch: {
+        messageType() {
+            this.message = "";
+            this.file = null;
+        }
+    },
     created() {
         this.messagesData = JSON.parse(this.messages);
     }

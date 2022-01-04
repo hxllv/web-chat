@@ -22,6 +22,7 @@ class CreateChatMessagesTable extends Migration
             $table->text('message')->nullable();
             $table->string('media')->nullable();
             $table->string('audio')->nullable();
+            $table->integer('message_type');
             $table->timestamps();
         });
     }

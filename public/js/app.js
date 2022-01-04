@@ -1888,6 +1888,59 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {
     var _this = this;
@@ -1909,7 +1962,10 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       messagesData: {},
-      message: ""
+      message: "",
+      media: null,
+      audio: null,
+      messageType: 0
     };
   },
   methods: {
@@ -1958,9 +2014,15 @@ __webpack_require__.r(__webpack_exports__);
       var _this3 = this;
 
       e.preventDefault();
-      axios.post("/chat/".concat(this.idReceiver), {
-        message: this.message
-      }).then(function (response) {
+      var config = {
+        headers: {
+          "content-type": "multipart/form-data"
+        }
+      };
+      var formData = new FormData();
+      if (this.message != "") formData.append("message", this.message);else if (this.media != null) formData.append("media", this.media);else if (this.audio != null) formData.append("audio", this.audio);
+      formData.append("messageType", this.messageType);
+      axios.post("/chat/".concat(this.idReceiver), formData, config).then(function (response) {
         _this3.checkForUpdate().then(function (response) {
           _this3.scrollToEnd();
 
@@ -1970,9 +2032,11 @@ __webpack_require__.r(__webpack_exports__);
         });
 
         _this3.message = "";
+        _this3.media = "";
       })["catch"](function (error) {
         console.log(error);
         _this3.message = "";
+        _this3.media = "";
       });
     },
     properBubbles: function properBubbles() {
@@ -1987,9 +2051,20 @@ __webpack_require__.r(__webpack_exports__);
         if (msg.classList.contains("message-right")) return allMsgs[index + 1].classList.contains("message-left") ? msg.classList.add("message-right-last") : msg.classList.remove("message-right-last");
         allMsgs[index + 1].classList.contains("message-right") ? msg.classList.add("message-left-last") : msg.classList.remove("message-left-last");
       });
+    },
+    onFileChange: function onFileChange(e) {
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length) return;
+      this.media = files[0]; //this.createImage(files[0]);
     }
   },
   props: ["messages", "idSender", "idReceiver"],
+  watch: {
+    messageType: function messageType() {
+      this.message = "";
+      this.file = null;
+    }
+  },
   created: function created() {
     this.messagesData = JSON.parse(this.messages);
   }
@@ -38099,7 +38174,7 @@ var render = function() {
   return _c("div", [
     _c(
       "div",
-      { staticClass: "container border", staticStyle: { height: "75vh" } },
+      { staticClass: "container border", staticStyle: { height: "70vh" } },
       _vm._l(_vm.messagesData, function(message) {
         return _c(
           "div",
@@ -38115,13 +38190,43 @@ var render = function() {
             _c(
               "span",
               {
-                staticClass: "p-2 border text-white",
+                staticClass: "p-2 border text-white text-break",
                 class: {
                   "bg-primary": _vm.idSender == message.sender_id,
                   "bg-secondary": _vm.idSender != message.sender_id
-                }
+                },
+                staticStyle: { "max-width": "50%" }
               },
-              [_vm._v(_vm._s(message.message) + "\n            ")]
+              [
+                message.message_type === 0
+                  ? _c("div", [
+                      _vm._v(
+                        "\n                    " +
+                          _vm._s(message.message) +
+                          "\n                "
+                      )
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                message.message_type === 1
+                  ? _c("div", [
+                      _vm._v(
+                        "\n                    " +
+                          _vm._s(message.message) +
+                          "\n                "
+                      )
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                message.message_type === 2
+                  ? _c("div", [
+                      _c("img", {
+                        staticClass: "img-fluid rounded",
+                        attrs: { src: "/storage/" + message.media, alt: "" }
+                      })
+                    ])
+                  : _vm._e()
+              ]
             )
           ]
         )
@@ -38129,36 +38234,98 @@ var render = function() {
       0
     ),
     _vm._v(" "),
+    _c("div", { staticClass: "d-flex justify-content-end mt-2 mb-2" }, [
+      _c(
+        "button",
+        {
+          staticClass: "btn btn-secondary ml-2 mr-2",
+          on: {
+            click: function($event) {
+              _vm.messageType = 0
+            }
+          }
+        },
+        [_vm._v("\n            Text Message\n        ")]
+      ),
+      _vm._v(" "),
+      _c(
+        "button",
+        {
+          staticClass: "btn btn-secondary ml-2 mr-2",
+          on: {
+            click: function($event) {
+              _vm.messageType = 1
+            }
+          }
+        },
+        [_vm._v("\n            Voice Message\n        ")]
+      ),
+      _vm._v(" "),
+      _c(
+        "button",
+        {
+          staticClass: "btn btn-secondary ml-2 mr-2",
+          on: {
+            click: function($event) {
+              _vm.messageType = 2
+            }
+          }
+        },
+        [_vm._v("\n            Image/Video\n        ")]
+      )
+    ]),
+    _vm._v(" "),
     _c(
       "form",
       {
-        staticClass: "form-inline mt-2",
-        attrs: { method: "post" },
+        staticClass: "form-inline",
+        attrs: { method: "post", enctype: "multipart/form-data" },
         on: { submit: _vm.sendMessage }
       },
       [
         _c("div", { staticClass: "input-group w-100" }, [
-          _c("input", {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.message,
-                expression: "message"
-              }
-            ],
-            staticClass: "form-control",
-            attrs: { type: "text", name: "", id: "" },
-            domProps: { value: _vm.message },
-            on: {
-              input: function($event) {
-                if ($event.target.composing) {
-                  return
+          _vm.messageType === 0
+            ? _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.message,
+                    expression: "message"
+                  }
+                ],
+                staticClass: "form-control",
+                attrs: { type: "text", name: "", id: "" },
+                domProps: { value: _vm.message },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.message = $event.target.value
+                  }
                 }
-                _vm.message = $event.target.value
-              }
-            }
-          }),
+              })
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.messageType === 2
+            ? _c(
+                "div",
+                { staticClass: "form-control d-flex align-items-center" },
+                [
+                  _c("input", {
+                    staticClass: "form-control-file",
+                    attrs: {
+                      accept: "image/png, image/jpeg, image/webp",
+                      type: "file",
+                      name: "",
+                      id: ""
+                    },
+                    on: { change: _vm.onFileChange }
+                  })
+                ]
+              )
+            : _vm._e(),
           _vm._v(" "),
           _vm._m(0)
         ])

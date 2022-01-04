@@ -12,7 +12,10 @@ class ChatMessage extends Model
 
     protected $fillable = [
         'receiver_id',
-        'message'
+        'message',
+        'media',
+        'audio',
+        'message_type'
     ];
 
     public function getIncrementing()

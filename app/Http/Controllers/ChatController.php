@@ -24,14 +24,46 @@ class ChatController extends Controller
 
         $messages = $messagesSent->concat($messagesReceived);
     
-        return isset($_GET['not-view']) && !empty($_GET['not-view']) && $_GET['not-view'] == 'true' ? $messages->sortBy('created_at')->values()->toJson() : view('chat')->with('messages', $messages->sortBy('created_at')->values())->with('user', $user);
+        return isset($_GET['not-view']) && 
+            !empty($_GET['not-view']) && 
+            $_GET['not-view'] == 'true' ? 
+                $messages->sortBy('created_at')->values()->toJson() : 
+                view('chat')->with('messages', $messages->sortBy('created_at')->values())->with('user', $user);
     }
 
     public function store(\App\Models\User $user) {
+        //dd(request("media"));
+
         $data = request()->validate([
-            'message' => 'required|string'
+            'message' => 'nullable|string',
+            'media' => 'nullable|file',
+            'audio' => 'nullable|file',
+            'messageType' => 'required|numeric'
         ]);
 
-        return auth()->user()->messagesSent()->create(['receiver_id' => $user->id, 'message' => $data['message']]);
+        $message = null;
+        $media = null;
+        $audio = null;
+
+        if (isset($data['message']) && !empty($data['message']) && $data['messageType'] == 0) {
+            $message = $data['message'];
+        }
+        else if (isset($data['media']) && !empty($data['media']) && $data['messageType'] == 2) {
+            $media = $data['media']->store('uploads', 'public');
+        }
+        else if (isset($data['audio']) && !empty($data['audio']) && $data['messageType'] == 1) {
+            $audio = $data['audio']->store('uploads', 'public');
+        }
+
+        if ($message === null && $media === null && $audio === null)
+            return response()->json(['message' => 'Message was null.'], 500);
+
+        return auth()->user()->messagesSent()->create([
+            'receiver_id' => $user->id, 
+            'message' => $message, 
+            'media' => $media, 
+            'audio' => $audio, 
+            'message_type' => $data['messageType']
+        ]);
     }
 }
