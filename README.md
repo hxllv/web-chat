@@ -1,6 +1,6 @@
 # how to run
 
-in cmd after cloning repo
+in cmd after cloning/pulling repo
 
 ```
 composer install
