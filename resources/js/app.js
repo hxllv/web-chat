@@ -26,6 +26,10 @@ Vue.component(
 
 Vue.component("chat-box", require("./components/ChatBox.vue").default);
 
+import VueRecord from "@codekraft-studio/vue-record";
+
+Vue.use(VueRecord);
+
 /* Vue.component("chat-form", require("./components/ChatForm.vue").default); */
 
 /**

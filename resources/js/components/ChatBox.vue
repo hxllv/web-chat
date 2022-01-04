@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="container border" style="height: 70vh">
+        <div id="container" class="container border" style="height: 70vh">
             <div
                 class="w-100"
                 v-for="message in messagesData"
@@ -22,7 +22,10 @@
                         {{ message.message }}
                     </div>
                     <div v-if="message.message_type === 1">
-                        {{ message.message }}
+                        <audio
+                            :src="`/storage/${message.audio}`"
+                            controls
+                        ></audio>
                     </div>
                     <div v-if="message.message_type === 2">
                         <img
@@ -51,7 +54,7 @@
                 class="btn btn-secondary ml-2 mr-2"
                 @click="messageType = 2"
             >
-                Image/Video
+                Image
             </button>
         </div>
         <form
@@ -69,6 +72,28 @@
                     name=""
                     id=""
                 />
+                <div
+                    v-if="messageType === 1"
+                    class="form-control d-flex align-items-center"
+                    style="padding-right: 0;"
+                >
+                    <div style="margin-left: -2em">
+                        <vue-record-audio @result="onResult" />
+                    </div>
+                    <button
+                        class="btn btn-primary ml-2"
+                        v-if="audio != null"
+                        @click="playPreventDefault"
+                        style="z-index: 3"
+                    >
+                        Play
+                    </button>
+                    <div
+                        ref="progressBar"
+                        class="d-flex progress-bar-custom"
+                        style="z-index: 2"
+                    ></div>
+                </div>
                 <div
                     v-if="messageType === 2"
                     class="form-control d-flex align-items-center"
@@ -98,7 +123,8 @@
 export default {
     mounted() {
         this.properBubbles();
-        this.scrollToEnd();
+
+        setTimeout(this.scrollToEnd, 100);
 
         setInterval(() => {
             this.checkForUpdate().then(response => {
@@ -111,6 +137,21 @@ export default {
                 }
             });
         }, 1000);
+
+        this.audioInstance.addEventListener(
+            "durationchange",
+            () => {
+                const ai = this.audioInstance;
+                if (ai.duration != Infinity) {
+                    var duration = ai.duration;
+                    this.audioInstance.remove();
+                    console.log(duration);
+                    this.audioDuration = duration;
+                    this.calculatingDuration = false;
+                }
+            },
+            false
+        );
     },
     data() {
         return {
@@ -118,14 +159,17 @@ export default {
             message: "",
             media: null,
             audio: null,
+            audioBlob: null,
+            audioInstance: new Audio(),
+            audioDuration: 0,
+            calculatingDuration: false,
             messageType: 0
         };
     },
     methods: {
         scrollToEnd() {
-            this.$el.querySelector(
-                ".container"
-            ).scrollTop = this.$el.querySelector(".container").scrollHeight;
+            const container = this.$el.querySelector("#container");
+            container.scrollTop = container.scrollHeight;
         },
         checkForUpdate() {
             return new Promise(resolve => {
@@ -180,7 +224,13 @@ export default {
             let formData = new FormData();
             if (this.message != "") formData.append("message", this.message);
             else if (this.media != null) formData.append("media", this.media);
-            else if (this.audio != null) formData.append("audio", this.audio);
+            else if (this.audio != null) {
+                let audioFile = new File([this.audioBlob], "temp", {
+                    type: "audio/mp3"
+                });
+                console.log(audioFile);
+                formData.append("audio", audioFile);
+            }
             formData.append("messageType", this.messageType);
 
             axios
@@ -226,7 +276,28 @@ export default {
             const files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
             this.media = files[0];
-            //this.createImage(files[0]);
+        },
+        onResult(data) {
+            this.audioBlob = data;
+            this.audio = window.URL.createObjectURL(data);
+        },
+        playPreventDefault(e) {
+            e.preventDefault();
+            this.$refs.progressBar.style.setProperty(
+                "--transition-duration",
+                `${this.audioDuration}s`
+            );
+
+            this.audioInstance.play();
+            this.$refs.progressBar.classList.add("playing");
+
+            setTimeout(() => {
+                this.$refs.progressBar.classList.remove("playing");
+                this.$refs.progressBar.style.setProperty(
+                    "--transition-duration",
+                    `0s`
+                );
+            }, (this.audioDuration + 0.15) * 1000);
         }
     },
     props: ["messages", "idSender", "idReceiver"],
@@ -234,6 +305,15 @@ export default {
         messageType() {
             this.message = "";
             this.file = null;
+        },
+        audio() {
+            this.audioInstance.src = this.audio;
+            this.calculatingDuration = true;
+            this.audioInstance.load();
+            this.audioInstance.currentTime = 24 * 60 * 60; //fake big time
+            this.audioInstance.volume = 0;
+            this.audioInstance.play();
+            this.audioInstance.volume = 1;
         }
     },
     created() {
@@ -271,5 +351,38 @@ span.bg-primary {
 
 span.bg-secondary {
     border-radius: 0 10px 10px 0;
+}
+
+.vue-audio-recorder {
+    background-color: #3490dc;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.vue-audio-recorder:hover {
+    background-color: #227dc7;
+}
+
+.progress-bar-custom {
+    flex-grow: 1;
+    height: 100%;
+    position: relative;
+    --transition-duration: 0s;
+}
+
+.progress-bar-custom::after {
+    content: "";
+    background-color: #6c757d;
+    position: absolute;
+    inset: 0;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(1, 1, 0, 0);
+    transition-duration: var(--transition-duration);
+}
+
+.progress-bar-custom.playing::after {
+    transform: scaleX(1);
 }
 </style>
