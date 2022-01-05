@@ -8,6 +8,7 @@ php artisan key:generate
 npm i
 php artisan migrate:fresh
 php artisan db:seed
+php artisan storage:link
 php artisan serve
 npm run watch
 ```
