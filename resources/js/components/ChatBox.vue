@@ -12,7 +12,7 @@
             >
                 <span
                     class="p-2 border text-white text-break"
-                    style="max-width: 50%"
+                    style="max-width: 50%; overflow: hidden;"
                     :class="{
                         'bg-primary': idSender == message.sender_id,
                         'bg-secondary': idSender != message.sender_id
@@ -21,11 +21,26 @@
                     <div v-if="message.message_type === 0">
                         {{ message.message }}
                     </div>
-                    <div v-if="message.message_type === 1">
+                    <div
+                        v-if="message.message_type === 1"
+                        :class="{
+                            'audio-bubble progress-bar-custom d-flex justify-content-center':
+                                idSender == message.sender_id,
+                            'audio-bubble audio-bubble-not-sender progress-bar-custom d-flex justify-content-center':
+                                idSender != message.sender_id
+                        }"
+                        :ref="`bubble-${message.id}`"
+                    >
                         <audio
+                            :ref="`audio-${message.id}`"
                             :src="`/storage/${message.audio}`"
-                            controls
                         ></audio>
+                        <button
+                            class="btn btn-custom shadow-none"
+                            @click="playBubble(message.id)"
+                        >
+                            Play
+                        </button>
                     </div>
                     <div v-if="message.message_type === 2">
                         <img
@@ -78,7 +93,7 @@
                     style="padding-right: 0;"
                 >
                     <div style="margin-left: -2em">
-                        <vue-record-audio @result="onResult" />
+                        <vue-record-audio :mode="'press'" @result="onResult" />
                     </div>
                     <button
                         class="btn btn-primary ml-2"
@@ -138,6 +153,19 @@ export default {
             });
         }, 1000);
 
+        for (let i in this.$refs) {
+            if (i.includes("audio-")) {
+                const [audio] = this.$refs[i];
+                audio.load();
+                audio.currentTime = 24 * 60 * 60; //fake big time
+                audio.volume = 0;
+                try {
+                    audio.play();
+                } catch {}
+                audio.volume = 1;
+            }
+        }
+
         this.audioInstance.addEventListener(
             "durationchange",
             () => {
@@ -147,7 +175,6 @@ export default {
                     this.audioInstance.remove();
                     console.log(duration);
                     this.audioDuration = duration;
-                    this.calculatingDuration = false;
                 }
             },
             false
@@ -162,7 +189,7 @@ export default {
             audioBlob: null,
             audioInstance: new Audio(),
             audioDuration: 0,
-            calculatingDuration: false,
+            playingSound: false,
             messageType: 0
         };
     },
@@ -283,6 +310,10 @@ export default {
         },
         playPreventDefault(e) {
             e.preventDefault();
+
+            if (this.playingSound) return;
+
+            this.playingSound = true;
             this.$refs.progressBar.style.setProperty(
                 "--transition-duration",
                 `${this.audioDuration}s`
@@ -292,12 +323,33 @@ export default {
             this.$refs.progressBar.classList.add("playing");
 
             setTimeout(() => {
+                this.playingSound = false;
                 this.$refs.progressBar.classList.remove("playing");
                 this.$refs.progressBar.style.setProperty(
                     "--transition-duration",
                     `0s`
                 );
             }, (this.audioDuration + 0.15) * 1000);
+        },
+        playBubble(id) {
+            if (this.playingSound) return;
+
+            this.playingSound = true;
+            const [audio] = this.$refs[`audio-${id}`];
+            const [div] = this.$refs[`bubble-${id}`];
+
+            div.style.setProperty(
+                "--transition-duration",
+                `${audio.duration}s`
+            );
+            audio.play();
+            div.classList.add("playing");
+
+            setTimeout(() => {
+                this.playingSound = false;
+                div.classList.remove("playing");
+                div.style.setProperty("--transition-duration", `0s`);
+            }, (audio.duration + 0.15) * 1000);
         }
     },
     props: ["messages", "idSender", "idReceiver"],
@@ -308,7 +360,6 @@ export default {
         },
         audio() {
             this.audioInstance.src = this.audio;
-            this.calculatingDuration = true;
             this.audioInstance.load();
             this.audioInstance.currentTime = 24 * 60 * 60; //fake big time
             this.audioInstance.volume = 0;
@@ -384,5 +435,33 @@ span.bg-secondary {
 
 .progress-bar-custom.playing::after {
     transform: scaleX(1);
+}
+
+.audio-bubble {
+    left: -0.5rem;
+    top: -0.5rem;
+    width: calc(100% + 1rem);
+    height: calc(100% + 1rem);
+}
+
+.audio-bubble::after {
+    content: "";
+    inset: -0.5rem !important;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.audio-bubble-not-sender::after {
+    content: "";
+    background-color: #227dc7 !important;
+}
+
+.btn-custom {
+    color: #fff;
+    z-index: 3;
+}
+
+.btn-custom:hover {
+    color: #929292 !important;
 }
 </style>

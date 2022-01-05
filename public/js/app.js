@@ -7859,6 +7859,33 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -7997,6 +8024,25 @@ __webpack_require__.r(__webpack_exports__);
         }
       });
     }, 1000);
+
+    for (var i in this.$refs) {
+      if (i.includes("audio-")) {
+        var _this$$refs$i = _slicedToArray(this.$refs[i], 1),
+            audio = _this$$refs$i[0];
+
+        audio.load();
+        audio.currentTime = 24 * 60 * 60; //fake big time
+
+        audio.volume = 0;
+
+        try {
+          audio.play();
+        } catch (_unused) {}
+
+        audio.volume = 1;
+      }
+    }
+
     this.audioInstance.addEventListener("durationchange", function () {
       var ai = _this.audioInstance;
 
@@ -8007,7 +8053,6 @@ __webpack_require__.r(__webpack_exports__);
 
         console.log(duration);
         _this.audioDuration = duration;
-        _this.calculatingDuration = false;
       }
     }, false);
   },
@@ -8020,7 +8065,7 @@ __webpack_require__.r(__webpack_exports__);
       audioBlob: null,
       audioInstance: new Audio(),
       audioDuration: 0,
-      calculatingDuration: false,
+      playingSound: false,
       messageType: 0
     };
   },
@@ -8128,14 +8173,39 @@ __webpack_require__.r(__webpack_exports__);
       var _this4 = this;
 
       e.preventDefault();
+      if (this.playingSound) return;
+      this.playingSound = true;
       this.$refs.progressBar.style.setProperty("--transition-duration", "".concat(this.audioDuration, "s"));
       this.audioInstance.play();
       this.$refs.progressBar.classList.add("playing");
       setTimeout(function () {
+        _this4.playingSound = false;
+
         _this4.$refs.progressBar.classList.remove("playing");
 
         _this4.$refs.progressBar.style.setProperty("--transition-duration", "0s");
       }, (this.audioDuration + 0.15) * 1000);
+    },
+    playBubble: function playBubble(id) {
+      var _this5 = this;
+
+      if (this.playingSound) return;
+      this.playingSound = true;
+
+      var _this$$refs$ = _slicedToArray(this.$refs["audio-".concat(id)], 1),
+          audio = _this$$refs$[0];
+
+      var _this$$refs$2 = _slicedToArray(this.$refs["bubble-".concat(id)], 1),
+          div = _this$$refs$2[0];
+
+      div.style.setProperty("--transition-duration", "".concat(audio.duration, "s"));
+      audio.play();
+      div.classList.add("playing");
+      setTimeout(function () {
+        _this5.playingSound = false;
+        div.classList.remove("playing");
+        div.style.setProperty("--transition-duration", "0s");
+      }, (audio.duration + 0.15) * 1000);
     }
   },
   props: ["messages", "idSender", "idReceiver"],
@@ -8146,7 +8216,6 @@ __webpack_require__.r(__webpack_exports__);
     },
     audio: function audio() {
       this.audioInstance.src = this.audio;
-      this.calculatingDuration = true;
       this.audioInstance.load();
       this.audioInstance.currentTime = 24 * 60 * 60; //fake big time
 
@@ -12758,7 +12827,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\ndiv.container[data-v-5142db38] {\n    overflow-y: auto;\n}\n.message-left[data-v-5142db38] {\n    display: flex;\n    justify-content: flex-start;\n}\n.message-left-last > span[data-v-5142db38] {\n    border-radius: 0 10px 10px 10px !important;\n}\n.message-right[data-v-5142db38] {\n    display: flex;\n    justify-content: flex-end;\n}\n.message-right-last > span[data-v-5142db38] {\n    border-radius: 10px 0 10px 10px !important;\n}\nspan.bg-primary[data-v-5142db38] {\n    border-radius: 10px 0 0 10px;\n}\nspan.bg-secondary[data-v-5142db38] {\n    border-radius: 0 10px 10px 0;\n}\n.vue-audio-recorder[data-v-5142db38] {\n    background-color: #3490dc;\n    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,\n        border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;\n}\n.vue-audio-recorder[data-v-5142db38]:hover {\n    background-color: #227dc7;\n}\n.progress-bar-custom[data-v-5142db38] {\n    flex-grow: 1;\n    height: 100%;\n    position: relative;\n    --transition-duration: 0s;\n}\n.progress-bar-custom[data-v-5142db38]::after {\n    content: \"\";\n    background-color: #6c757d;\n    position: absolute;\n    inset: 0;\n    transform: scaleX(0);\n    transform-origin: left;\n    transition-property: transform;\n    transition-timing-function: cubic-bezier(1, 1, 0, 0);\n    transition-duration: var(--transition-duration);\n}\n.progress-bar-custom.playing[data-v-5142db38]::after {\n    transform: scaleX(1);\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\ndiv.container[data-v-5142db38] {\n    overflow-y: auto;\n}\n.message-left[data-v-5142db38] {\n    display: flex;\n    justify-content: flex-start;\n}\n.message-left-last > span[data-v-5142db38] {\n    border-radius: 0 10px 10px 10px !important;\n}\n.message-right[data-v-5142db38] {\n    display: flex;\n    justify-content: flex-end;\n}\n.message-right-last > span[data-v-5142db38] {\n    border-radius: 10px 0 10px 10px !important;\n}\nspan.bg-primary[data-v-5142db38] {\n    border-radius: 10px 0 0 10px;\n}\nspan.bg-secondary[data-v-5142db38] {\n    border-radius: 0 10px 10px 0;\n}\n.vue-audio-recorder[data-v-5142db38] {\n    background-color: #3490dc;\n    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,\n        border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;\n}\n.vue-audio-recorder[data-v-5142db38]:hover {\n    background-color: #227dc7;\n}\n.progress-bar-custom[data-v-5142db38] {\n    flex-grow: 1;\n    height: 100%;\n    position: relative;\n    --transition-duration: 0s;\n}\n.progress-bar-custom[data-v-5142db38]::after {\n    content: \"\";\n    background-color: #6c757d;\n    position: absolute;\n    inset: 0;\n    transform: scaleX(0);\n    transform-origin: left;\n    transition-property: transform;\n    transition-timing-function: cubic-bezier(1, 1, 0, 0);\n    transition-duration: var(--transition-duration);\n}\n.progress-bar-custom.playing[data-v-5142db38]::after {\n    transform: scaleX(1);\n}\n.audio-bubble[data-v-5142db38] {\n    left: -0.5rem;\n    top: -0.5rem;\n    width: calc(100% + 1rem);\n    height: calc(100% + 1rem);\n}\n.audio-bubble[data-v-5142db38]::after {\n    content: \"\";\n    inset: -0.5rem !important;\n    z-index: 2;\n    pointer-events: none;\n}\n.audio-bubble-not-sender[data-v-5142db38]::after {\n    content: \"\";\n    background-color: #227dc7 !important;\n}\n.btn-custom[data-v-5142db38] {\n    color: #fff;\n    z-index: 3;\n}\n.btn-custom[data-v-5142db38]:hover {\n    color: #929292 !important;\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -44295,7 +44364,7 @@ var render = function() {
                   "bg-primary": _vm.idSender == message.sender_id,
                   "bg-secondary": _vm.idSender != message.sender_id
                 },
-                staticStyle: { "max-width": "50%" }
+                staticStyle: { "max-width": "50%", overflow: "hidden" }
               },
               [
                 message.message_type === 0
@@ -44309,14 +44378,43 @@ var render = function() {
                   : _vm._e(),
                 _vm._v(" "),
                 message.message_type === 1
-                  ? _c("div", [
-                      _c("audio", {
-                        attrs: {
-                          src: "/storage/" + message.audio,
-                          controls: ""
+                  ? _c(
+                      "div",
+                      {
+                        ref: "bubble-" + message.id,
+                        refInFor: true,
+                        class: {
+                          "audio-bubble progress-bar-custom d-flex justify-content-center":
+                            _vm.idSender == message.sender_id,
+                          "audio-bubble audio-bubble-not-sender progress-bar-custom d-flex justify-content-center":
+                            _vm.idSender != message.sender_id
                         }
-                      })
-                    ])
+                      },
+                      [
+                        _c("audio", {
+                          ref: "audio-" + message.id,
+                          refInFor: true,
+                          attrs: { src: "/storage/" + message.audio }
+                        }),
+                        _vm._v(" "),
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-custom shadow-none",
+                            on: {
+                              click: function($event) {
+                                return _vm.playBubble(message.id)
+                              }
+                            }
+                          },
+                          [
+                            _vm._v(
+                              "\n                        Play\n                    "
+                            )
+                          ]
+                        )
+                      ]
+                    )
                   : _vm._e(),
                 _vm._v(" "),
                 message.message_type === 2
@@ -44420,7 +44518,12 @@ var render = function() {
                   _c(
                     "div",
                     { staticStyle: { "margin-left": "-2em" } },
-                    [_c("vue-record-audio", { on: { result: _vm.onResult } })],
+                    [
+                      _c("vue-record-audio", {
+                        attrs: { mode: "press" },
+                        on: { result: _vm.onResult }
+                      })
+                    ],
                     1
                   ),
                   _vm._v(" "),
