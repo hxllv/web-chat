@@ -104,6 +104,11 @@ class User extends Authenticatable
         return $this->getRelation('friends');
     }
 
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
     protected function loadFriends()
     {
         if ( ! array_key_exists('friends', $this->relations))

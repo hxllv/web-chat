@@ -33,3 +33,4 @@ Route::post('/friend/{user}', [App\Http\Controllers\FriendController::class, 'st
 Route::delete('/friend/{user}/{page}', [App\Http\Controllers\FriendController::class, 'delete'])->name('deny-request');
 Route::patch('/friend/{user}/{page}', [App\Http\Controllers\FriendController::class, 'update'])->name('accept-request');
 
+Route::post('/home', [App\Http\Controllers\HomeController::class, 'store']);
