@@ -69,7 +69,14 @@
                                     <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
                                 </li>
                             @endif
+
                         @else
+                            <form class="nav-item row" method="get" action="{{ route("search") }}">
+                                @csrf
+                                <input class="form-control col-6 " type="text" name="query" required>
+                                <button class="btn btn-primary " type="submit" >Search</button>
+                            </form>
+
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->username }}
