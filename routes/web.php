@@ -14,12 +14,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('home');
 });
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::post('/home', [App\Http\Controllers\HomeController::class, 'store'])->name('home-post');
 
 Route::get('/chat-profile', [App\Http\Controllers\ChatProfileController::class, 'index'])->name('chat-profile');
 Route::get('/chat-profile/{user}', [App\Http\Controllers\ChatProfileController::class, 'show'])->name('chat-profile-not-me');
@@ -33,4 +34,3 @@ Route::post('/friend/{user}', [App\Http\Controllers\FriendController::class, 'st
 Route::delete('/friend/{user}/{page}', [App\Http\Controllers\FriendController::class, 'delete'])->name('deny-request');
 Route::patch('/friend/{user}/{page}', [App\Http\Controllers\FriendController::class, 'update'])->name('accept-request');
 
-Route::post('/home', [App\Http\Controllers\HomeController::class, 'store']);
