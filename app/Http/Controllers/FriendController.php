@@ -23,7 +23,7 @@ class FriendController extends Controller
         return view('friends')->with('friends', $friends)->with('friendRequests', $friendRequests);
     }
 
-    public function store($user) 
+    public function store($user)
     {
         return auth()->user()->friendsOfMine()->toggle($user);
     }
@@ -38,15 +38,8 @@ class FriendController extends Controller
 
     public function update($user, $page)
     {
-        auth()->user()->friendsOf()->wherePivot('user_id', '=', $user)->update(['accepted' => 1]);   
+        auth()->user()->friendsOf()->wherePivot('user_id', '=', $user)->update(['accepted' => 1]);
 
         return redirect('/' . $page . '/' . ($page == 'chat-profile' ? $user : ''));
-    }
-
-    public function search($query)
-    {
-        $users = User::where('username', 'LIKE', "%{$query}%")->get();
-
-        return view('friend-search')->with('users', $users);
     }
 }
