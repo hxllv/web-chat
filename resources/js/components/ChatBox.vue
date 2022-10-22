@@ -151,7 +151,7 @@ export default {
                     this.properBubbles();
                 }
             });
-        }, 1000);
+        }, 4000);
 
         for (let i in this.$refs) {
             if (i.includes("audio-")) {
@@ -251,11 +251,10 @@ export default {
             let formData = new FormData();
             if (this.message != "") formData.append("message", this.message);
             else if (this.media != null) formData.append("media", this.media);
-            else if (this.audio != null) {
+            else if (this.audioBlob != null) {
                 let audioFile = new File([this.audioBlob], "temp", {
                     type: "audio/mp3"
                 });
-                console.log(audioFile);
                 formData.append("audio", audioFile);
             }
             formData.append("messageType", this.messageType);
@@ -270,12 +269,12 @@ export default {
                         }
                     });
                     this.message = "";
-                    this.media = "";
+                    this.media = null;
                 })
                 .catch(error => {
                     console.log(error);
                     this.message = "";
-                    this.media = "";
+                    this.media = null;
                 });
         },
         properBubbles() {

@@ -8023,7 +8023,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
           _this.properBubbles();
         }
       });
-    }, 1000);
+    }, 4000);
 
     for (var i in this.$refs) {
       if (i.includes("audio-")) {
@@ -8122,11 +8122,10 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
         }
       };
       var formData = new FormData();
-      if (this.message != "") formData.append("message", this.message);else if (this.media != null) formData.append("media", this.media);else if (this.audio != null) {
+      if (this.message != "") formData.append("message", this.message);else if (this.media != null) formData.append("media", this.media);else if (this.audioBlob != null) {
         var audioFile = new File([this.audioBlob], "temp", {
           type: "audio/mp3"
         });
-        console.log(audioFile);
         formData.append("audio", audioFile);
       }
       formData.append("messageType", this.messageType);
@@ -8140,11 +8139,11 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
         });
 
         _this3.message = "";
-        _this3.media = "";
+        _this3.media = null;
       })["catch"](function (error) {
         console.log(error);
         _this3.message = "";
-        _this3.media = "";
+        _this3.media = null;
       });
     },
     properBubbles: function properBubbles() {
