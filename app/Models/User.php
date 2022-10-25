@@ -7,18 +7,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    
-    protected static function boot() 
+
+    protected static function boot()
     {
         parent::boot();
 
@@ -48,7 +49,7 @@ class User extends Authenticatable
         return false;
     }
 
-   /**
+    /**
      * Get the auto-incrementing key type.
      *
      * @return string
@@ -77,29 +78,34 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function chatProfile() {
+    public function chatProfile()
+    {
         return $this->hasOne(ChatProfile::class);
     }
 
-    public function friendsOfMine() {
+    public function friendsOfMine()
+    {
         return $this->belongsToMany(User::class, 'friend_user', 'user_id', 'friend_id');
     }
 
-    public function friendsOf() {
+    public function friendsOf()
+    {
         return $this->belongsToMany(User::class, 'friend_user', 'friend_id', 'user_id');
     }
 
-    public function messagesSent() {
+    public function messagesSent()
+    {
         return $this->hasMany(ChatMessage::class, 'sender_id');
     }
 
-    public function messagesReceived() {
+    public function messagesReceived()
+    {
         return $this->hasMany(ChatMessage::class, 'receiver_id');
     }
 
     public function getFriendsAttribute()
     {
-        if ( ! array_key_exists('friends', $this->relations)) $this->loadFriends();
+        if (!array_key_exists('friends', $this->relations)) $this->loadFriends();
 
         return $this->getRelation('friends');
     }
@@ -111,8 +117,7 @@ class User extends Authenticatable
 
     protected function loadFriends()
     {
-        if ( ! array_key_exists('friends', $this->relations))
-        {
+        if (!array_key_exists('friends', $this->relations)) {
             $friends = $this->mergeFriends();
 
             $this->setRelation('friends', $friends);
