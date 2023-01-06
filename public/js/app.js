@@ -8253,11 +8253,15 @@ __webpack_require__.r(__webpack_exports__);
     friend: function friend() {
       var _this = this;
 
+      if (this.isFriendsData) {
+        axios["delete"]("/friend/".concat(this.userId)).then(function (response) {
+          _this.update();
+        });
+        return;
+      }
+
       axios.post("/friend/".concat(this.userId)).then(function (response) {
-        if (!_this.isFriendsData) _this.isRequestedData = !_this.isRequestedData;else {
-          _this.isRequestedData = false;
-          _this.isFriendsData = false;
-        }
+        _this.update();
       })["catch"](function (error) {
         return console.log(error);
       });
@@ -8266,6 +8270,12 @@ __webpack_require__.r(__webpack_exports__);
       if (this.isRequestedData) return "Cancel friend request";
       if (this.isFriendsData) return "Unfriend";
       return "Send friend request";
+    },
+    update: function update() {
+      if (!this.isFriendsData) this.isRequestedData = !this.isRequestedData;else {
+        this.isRequestedData = false;
+        this.isFriendsData = false;
+      }
     }
   },
   data: function data() {

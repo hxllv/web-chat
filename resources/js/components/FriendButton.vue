@@ -9,15 +9,17 @@ export default {
     props: ["userId", "isRequested", "isFriends"],
     methods: {
         friend() {
+            if (this.isFriendsData) {
+                axios.delete(`/friend/${this.userId}`).then(response => {
+                    this.update();
+                });
+                return;
+            }
+
             axios
                 .post(`/friend/${this.userId}`)
                 .then(response => {
-                    if (!this.isFriendsData)
-                        this.isRequestedData = !this.isRequestedData;
-                    else {
-                        this.isRequestedData = false;
-                        this.isFriendsData = false;
-                    }
+                    this.update();
                 })
                 .catch(error => console.log(error));
         },
@@ -26,6 +28,14 @@ export default {
             if (this.isFriendsData) return "Unfriend";
 
             return "Send friend request";
+        },
+        update() {
+            if (!this.isFriendsData)
+                this.isRequestedData = !this.isRequestedData;
+            else {
+                this.isRequestedData = false;
+                this.isFriendsData = false;
+            }
         }
     },
     data() {
