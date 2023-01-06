@@ -15,6 +15,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/login', [App\Http\Controllers\AuthController::class, 'store']);
+Route::get('/friends', [App\Http\Controllers\FriendController::class, 'friendsApi']);
+Route::get('/requests', [App\Http\Controllers\FriendController::class, 'requestsApi']);
+Route::get('/search', [App\Http\Controllers\SearchController::class, 'store']);
+Route::post('/friend/{user}', [App\Http\Controllers\FriendController::class, 'store']);
+Route::delete('/friend/{user}/{page}', [App\Http\Controllers\FriendController::class, 'delete2']);
+Route::patch('/friend/{user}/{page}', [App\Http\Controllers\FriendController::class, 'update2']);
+
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
