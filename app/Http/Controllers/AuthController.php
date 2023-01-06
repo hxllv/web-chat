@@ -20,7 +20,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             // Authentication passed...
-            return auth()->user()->createToken("api")->plainTextToken;
+            return response()->json(["token" => auth()->user()->createToken("api")->plainTextToken]);
         }
 
         return response('Login invalid', 503);
